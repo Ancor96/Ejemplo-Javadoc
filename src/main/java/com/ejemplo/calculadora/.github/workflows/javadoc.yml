@@ -1,0 +1,49 @@
+
+name: Generar y publicar Javadoc
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  publicar-javadoc:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Generar documentación Javadoc
+        run: |
+          javadoc \
+            -d ./javadoc \
+            -encoding UTF-8 \
+            -charset UTF-8 \
+            -docencoding UTF-8 \
+            -sourcepath src/main/java \
+            -subpackages com.ejemplo.calculadora
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir documentación
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./javadoc
+
+      - name: Publicar documentación
+        id: deployment
+        uses: actions/deploy-pages@v4
